@@ -1,0 +1,65 @@
+# Where this data comes from and what was done to it.
+
+source:
+  name: 第５次レッドリスト (5th Red List of Japan)
+  publisher: Ministry of the Environment, Japan, Nature Conservation Bureau (環境省 自然環境局)
+  page: https://ikilog.biodic.go.jp/Rdb/booklist
+  section: 第５次レッドリストについて（令和7年～）
+  press_releases:
+    - {date: "2025-03-18", url: "https://www.env.go.jp/press/press_04578.html", taxa: plants and fungi}
+    - {date: "2026-03-17", url: "https://www.env.go.jp/press/press_03312.html", taxa: birds, reptiles and amphibians}
+  licence:
+    applied: CC BY 4.0
+    url: https://creativecommons.org/licenses/by/4.0/
+    statement: "なお、以下のレッドリスト（CSV版）は、クリエイティブ・コモンズ 表示 4.0 国際ライセンス（CC BY 4.0）の下で公表されています。"
+    read: 2026-10-03, and checked by scripts/01_download.py at fetch time (2026-10-04 UTC)
+    attribution_required: true
+    share_alike: false
+    other_labels: e-Gov data portal lists the same eight files as cc-by-4.0
+  not_included: earlier editions (1991 to Red List 2020, marine Red List 2017), no licence stated for them
+
+versions:
+  "5th":
+    note: |
+      The 5th edition is published taxon by taxon. Plants and fungi came out
+      on 2025-03-18 (files under redlist2025/), birds, reptiles and amphibians
+      on 2026-03-17 (redlist2026/). The other animals are still on Red List
+      2020. Files fetched 2026-10-04 UTC.
+    files:
+      # file: [subset, bytes, sha256, last_modified, encoding, header rows, data rows]
+      redlist2025_ikansoku.csv:  {subset: vascular_plants, bytes: 158285, sha256: 8fbffcff1ac878304f99481f4773b29840212c603708dd50b3e3d713b8dbcbcb, last_modified: "Mon, 17 Mar 2025 06:46:49 GMT", encoding: cp932, header_rows: 1, rows: 2222}
+      redlist2025_sentairui.csv: {subset: bryophytes, bytes: 19150, sha256: d8a71907205576bc63a70000ec4e6a80f66a93ab474f8b05f40328fa82f9c1ba, last_modified: "Mon, 17 Mar 2025 06:46:49 GMT", encoding: cp932, header_rows: 1, rows: 289}
+      redlist2025_sorui.csv:     {subset: algae, bytes: 11178, sha256: a6a7f15d0ef9f592c5dcd3908caba097f29d3b72f96f973480c617eea723ae72, last_modified: "Mon, 17 Mar 2025 06:46:49 GMT", encoding: cp932, header_rows: 1, rows: 178}
+      redlist2025_chiirui.csv:   {subset: lichens, bytes: 12556, sha256: 46e7b3f8e9318333c15a236dc5830eded334a718c3ef6fc70acde7dd227110af, last_modified: "Mon, 17 Mar 2025 06:46:50 GMT", encoding: utf-8-sig, header_rows: 1, rows: 153}
+      redlist2025_kinrui.csv:    {subset: fungi, bytes: 6738, sha256: f723b8a310d7bbc95e2198dbe6d6777b1d547e38006c9303835b8e715e74e68f, last_modified: "Mon, 17 Mar 2025 06:46:49 GMT", encoding: cp932, header_rows: 1, rows: 110}
+      redlist2026_birds.csv:     {subset: birds, bytes: 142742, sha256: bda1b9e1f4ce4e17278ca14b356cfa2f480c2446c3cf921d66695ff51721cf72, last_modified: "Fri, 10 Apr 2026 01:42:47 GMT", encoding: utf-8-sig, header_rows: 3, rows: 170}
+      redlist2026_reptiles.csv:  {subset: reptiles, bytes: 62787, sha256: 5d6be29be9fe37a9b1e13aa1ae93b954d9c0f545fb3b9b3fddd68ea3f1615228, last_modified: "Fri, 10 Apr 2026 01:42:48 GMT", encoding: utf-8-sig, header_rows: 3, rows: 63}
+      redlist2026_amphibian.csv: {subset: amphibians, bytes: 69170, sha256: 3e2c0c120558d473d1e76b20b0c0710fde952cdc3dc647477d926f584c9ac6cf, last_modified: "Fri, 10 Apr 2026 01:42:46 GMT", encoding: utf-8-sig, header_rows: 3, rows: 77}
+    counts:
+      total_rows: 3262
+      press_releases:
+        plants_and_fungi: {stated: 2952, rows: 2952, match: true}
+        birds: {stated: 170, rows: 170, match: true}
+        reptiles_and_amphibians: {stated: 138, rows: 140, match: false, note: "unresolved; 2 reptile rows are LP and 140 - 2 = 138, not confirmed"}
+
+checked:
+  note: scripts/02_verify.py, with DuckDB 1.5.6, before upload; all passed
+  items:
+    - raw files against MANIFEST.json (size, sha256, decodes in the recorded encoding, record count by the csv module)
+    - Parquet rows equal the raw data records counted with Python's csv module, and the pinned counts
+    - column names equal the flattened raw header, in order
+    - every column of the type its name gives
+    - every value equal to the raw value; sha256 over all values equal on both sides
+    - header rows in the Parquet metadata equal the raw header rows
+    - a plain DuckDB with only built-in extensions opens every file
+    - no bloom filters
+
+modifications:
+  raw: none. The Ministry's CSVs, byte for byte.
+  parquet:
+    - decoded into UTF-8 from each file's encoding
+    - 2026 header rows flattened to "<row 2>_<row 3>", or "<row 3>" where row 2 is empty; original rows kept in key-value metadata source_header_rows
+    - 133 columns of the 2026 files holding 0 or 1 typed as INTEGER; a value other than 0 or 1 stops the build
+    - every other column is the CSV text; no category, bracket, numeral, dash or space normalised
+    - row order as in the CSV
+    - written with zstd, without bloom filters

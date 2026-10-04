@@ -1,0 +1,44 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+
+Everything under this directory comes from the 5th Red List of Japan
+(環境省 第５次レッドリスト), published by the Ministry of the Environment,
+Japan, Nature Conservation Bureau, on the Ikimono Log page
+https://ikilog.biodic.go.jp/Rdb/booklist .
+
+That page, read on 2026-10-03 and checked again when the files were fetched
+on 2026-10-04 (UTC), says in its section 「第５次レッドリストについて（令和7年～）」,
+directly above the table of the eight CSV files:
+
+  なお、以下のレッドリスト（CSV版）は、クリエイティブ・コモンズ 表示 4.0
+  国際ライセンス（CC BY 4.0）の下で公表されています。
+
+("The following Red Lists (CSV versions) are published under CC BY 4.0.")
+The page gives no example of how to credit the source. Credit it, for
+example, as:
+
+  出典：環境省 第５次レッドリスト（いきものログ https://ikilog.biodic.go.jp/Rdb/booklist）、CC BY 4.0
+  Source: Ministry of the Environment, Japan, 5th Red List (Ikimono Log), CC BY 4.0
+
+The files under raw/5th/ are the Ministry's CSVs, byte for byte;
+raw/5th/MANIFEST.json records their URLs, sizes, sha256 and Last-Modified.
+
+The Parquet under parquet/5th/ was made from those CSVs by
+yuiseki/env-redlist-jp, not by the Ministry:
+
+  - decoded from cp932 or UTF-8 with a BOM, as each file is, into UTF-8
+  - the three header rows of the 2026 files (birds, reptiles, amphibians)
+    flattened into one name per column, "<row 2>_<row 3>", or "<row 3>"
+    where row 2 is empty; the original rows are kept in each file's
+    key-value metadata (source_header_rows) and in README.md
+  - the habitat, region and threat columns of the 2026 files, which hold
+    0 or 1, typed as INTEGER; every other column is the text of the CSV
+  - no value was changed: categories, brackets, numerals, dashes and
+    spaces are as the Ministry wrote them
+
+The earlier editions on the same page (1991 to Red List 2020, the marine
+Red List) are not included; the page states no licence for them.
+
+The code that fetches, checks and converts is in the repository this dataset
+was built from (https://github.com/yuiseki/env-redlist-jp) and does not
+apply here.
